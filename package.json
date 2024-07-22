@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.16",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  }
+}
