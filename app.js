@@ -1,18 +1,17 @@
-require('dotenv').config(); // Load environment variables
-const express = require('express');
-const { ClerkExpressRequireAuth } = require('@clerk/clerk-sdk-node');
+require('dotenv').config();
+const { ClerkExpressRequireAuth } = require ('@clerk/clerk-sdk-node')
+const express  = require ('express');
 
 const port = process.env.PORT || 3000;
 const app = express();
 
-// Configure Clerk middleware with secret key
-app.use(ClerkExpressRequireAuth({
-  // Options if needed
-}));
-
 // Use the strict middleware that raises an error when unauthenticated
 app.get(
   '/protected-endpoint',
+  ClerkExpressRequireAuth({
+    // Add options here
+    // See the Middleware options section for more details
+  }),
   (req, res) => {
     res.json(req.auth);
   }
