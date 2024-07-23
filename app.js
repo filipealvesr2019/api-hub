@@ -13,6 +13,7 @@ app.get(
     // See the Middleware options section for more details
   }),
   (req, res) => {
+    res.send('vc esta autorisado')
     res.json(req.auth);
   }
 );
