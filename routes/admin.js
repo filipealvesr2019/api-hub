@@ -18,7 +18,8 @@ const {
 
 const { Userlogout } = require("../controllers/admin");
 const { isAuthenticated, isAdmin } = require("../middleware/middlewares.authMiddleware");
-const AuthController = require('../controllers/admin')
+const AuthController = require('../controllers/admin');
+
 router.get("/users",isAuthenticated, getAllUsers); // Rota para buscar todos os usuários
 router.post("/login", loginUser); // Use directly from AuthController
 
@@ -184,6 +185,48 @@ router.post('/reset-password/:token',  AuthController.resetPassword);
 
 
 
+
+router.post('/register', async (req, res) => {
+  const { email, phoneNumber, cep, cpf, houseNumber } = req.body;
+    const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
+
+  try {
+    const user = new Admin({ email, phoneNumber, cep, cpf, houseNumber });
+    await user.save();
+
+    const token = user.getJwtToken();
+    await   client.sendEmail({
+      "From": "ceo@mediewal.com.br",
+      "To": email,
+      "Subject": "Confirme seu email",
+      "TextBody": `Clique no link para confirmar seu email: http://localhost:3000/confirm/${token}`
+    });
+   
+
+    res.status(201).send("Usuário registrado com sucesso! Verifique seu email para confirmar.");
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+router.get('/confirm/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await Admin.findById(decoded.id);
+
+    if (!user) {
+      return res.status(400).send("Usuário não encontrado.");
+    }
+
+    user.confirmed = true;
+    await user.save();
+
+    res.status(200).send("Email confirmado com sucesso!");
+  } catch (error) {
+    res.status(400).send("Token inválido ou expirado.");
+  }
+});
 
 
 

@@ -8,77 +8,36 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: [true, "Digite um email válido!"],
     lowercase: true,
-    unique:true,
+    unique: true,
     validate: [isEmail, "Digite um email válido"],
   },
-  password: {
+  phoneNumber: {
     type: String,
-    required: [true, "Digite uma senha"],
-    minLength: [10, "Digite uma senha de no mínimo 10 caracteres"],
-    select: false,
-    validate: {
-      validator: function(value) {
-        // Verifica se a senha contém pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial
-        return /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/.test(value);
-      },
-      message: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
-    },
+    required: [true, "Digite um número de telefone válido!"],
   },
-
-  role: {
+  cep: {
     type: String,
-    required: [true, "Digite uma credencial válida!"],
-    validate: {
-      validator: validateRole,
-      message: "Digite uma credencial válida!",
-    },
+    required: [true, "Digite um CEP válido!"],
   },
-  
-  loginAttempts: {
-    type: Number,
-    default: 0,
-  },
-  lockUntil: {
-    type: Number,
-  },
-  googleId: {
+  cpf: {
     type: String,
-    unique: true, // Garante que apenas um usuário tenha esse ID do Google
-    sparse: true // Permite que outros usuários tenham null ou undefined para este campo
-  }
+    required: [true, "Digite um CPF válido!"],
+  },
+  houseNumber: {
+    type: String,
+    required: [true, "Digite um número da casa válido!"],
+  },
+  confirmed: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-function validateRole(value) {
-  const allowedRoles = ["administrador","Gerente", "funcionario"];
-  return allowedRoles.includes(value);
-}
-adminSchema.methods.comparePassword = async function (gotPassword){
-  return await bcrypt.compare(gotPassword, this.password)
-}
-
-
-// criptografando a senha antes de salva o email e senha do usuario
-adminSchema.pre('save', async function(next){
-  if(!this.isModified("password")){
-      next()
-  }
-
-  this.password = await bcrypt.hash(this.password, 10)
-})
-
-// JWT token
 adminSchema.methods.getJwtToken = function () {
-  return jwt.sign({id:this._id}, process.env.JWT_SECRET, {
-      expiresIn:process.env.JWT_DURATION
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_DURATION
   });
-}
-
-
-
-
-
-
-
+};
 
 const User = mongoose.model("Admin", adminSchema);
 
