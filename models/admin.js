@@ -27,11 +27,37 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: [true, "Digite um número da casa válido!"],
   },
+  password: {
+    type: String,
+    required: [true, "Digite uma senha"],
+    minLength: [10, "Digite uma senha de no mínimo 10 caracteres"],
+    select: false,
+    validate: {
+      validator: function (value) {
+        // Verifica se a senha contém pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial
+        return /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/.test(value);
+      },
+      message: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
+    },
+  },
   confirmed: {
     type: Boolean,
     default: false,
   },
 });
+
+adminSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+adminSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 adminSchema.methods.getJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
@@ -39,6 +65,6 @@ adminSchema.methods.getJwtToken = function () {
   });
 };
 
-const User = mongoose.model("Admin", adminSchema);
+const Admin = mongoose.model("Admin", adminSchema);
 
-module.exports = User;
+module.exports = Admin;
