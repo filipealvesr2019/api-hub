@@ -8,24 +8,8 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: [true, "Digite um email válido!"],
     lowercase: true,
-    unique: true,
+    unique:true,
     validate: [isEmail, "Digite um email válido"],
-  },
-  phoneNumber: {
-    type: String,
-    required: [true, "Digite um número de telefone válido!"],
-  },
-  cep: {
-    type: String,
-    required: [true, "Digite um CEP válido!"],
-  },
-  cpf: {
-    type: String,
-    required: [true, "Digite um CPF válido!"],
-  },
-  houseNumber: {
-    type: String,
-    required: [true, "Digite um número da casa válido!"],
   },
   password: {
     type: String,
@@ -33,37 +17,66 @@ const adminSchema = new mongoose.Schema({
     minLength: [10, "Digite uma senha de no mínimo 10 caracteres"],
     select: false,
     validate: {
-      validator: function (value) {
+      validator: function(value) {
         // Verifica se a senha contém pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial
-        return /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/.test(value);
+        return /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!'{:@#$%^&*])/.test(value);
       },
       message: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
     },
   },
-  confirmed: {
+
+  role: {
+    type: String,
+    required: [true, "Digite uma credencial válida!"],
+    validate: {
+      validator: validateRole,
+      message: "Digite uma credencial válida!",
+    },
+  },
+   confirmed: {
     type: Boolean,
     default: false,
   },
+  
+  loginAttempts: {
+    type: Number,
+    default: 0,
+  },
+  lockUntil: {
+    type: Number,
+  },
 });
+function validateRole(value) {
+  const allowedRoles = ["administrador"];
+  return allowedRoles.includes(value);
+}
+adminSchema.methods.comparePassword = async function (gotPassword){
+  return await bcrypt.compare(gotPassword, this.password)
+}
 
-adminSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
+
+// criptografando a senha antes de salva o email e senha do usuario
+adminSchema.pre('save', async function(next){
+  if(!this.isModified("password")){
+      next()
   }
 
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
+  this.password = await bcrypt.hash(this.password, 10)
+})
 
-adminSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
+// JWT token
 adminSchema.methods.getJwtToken = function () {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_DURATION
+  return jwt.sign({id:this._id}, process.env.JWT_SECRET, {
+      expiresIn:process.env.JWT_DURATION
   });
-};
+}
+
+
+
+
+
+
+
 
 const Admin = mongoose.model("Admin", adminSchema);
 
