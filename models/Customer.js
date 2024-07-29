@@ -24,6 +24,10 @@ const customerSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now()
+  }, 
+  subscription:{
+    type: String, 
+    default:"free"
   }
 });
 

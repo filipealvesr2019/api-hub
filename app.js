@@ -14,6 +14,7 @@ const cookieParser = require('cookie-parser');
 const admin = require('./routes/admin');
 const Ecommerce = require('./routes/Ecommerce');
 const Customer = require('./routes/Customer');
+const Monthly = require('./routes/subscriptions/monthly');
 
 
 app.use(bodyParser.json());
@@ -41,7 +42,7 @@ app.use((err, req, res, next) => {
 app.use('/api', admin);
 app.use('/api', Ecommerce);
 app.use('/api', Customer);
-
+app.use('/api', Monthly);
 // Acesso à variável de ambiente MONGODB_URI do arquivo .env
 const uri = process.env.MONGODB_URI;
 
