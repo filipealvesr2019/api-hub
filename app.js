@@ -14,7 +14,7 @@ const cookieParser = require('cookie-parser');
 const admin = require('./routes/admin');
 const Ecommerce = require('./routes/Ecommerce');
 const Customer = require('./routes/Customer');
-const Monthly = require('./routes/subscriptions/monthly');
+const Monthly = require('./routes/subscriptions/basic/monthly');
 
 
 app.use(bodyParser.json());

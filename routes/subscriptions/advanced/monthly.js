@@ -1,10 +1,10 @@
 const express = require('express');
-const Customer = require('../../models/Customer');
-const Pix = require('../../models/Pix/Pix');
+const Customer = require('../../../models/Customer');
+const Pix = require('../../../models/Pix/Pix');
 const router = express.Router();
 const axios = require("axios");
-const Boleto = require('../../models/Boleto/Boleto');
-const Credito = require('../../models/Credito/Credito');
+const Boleto = require('../../../models/Boleto/Boleto');
+const Credito = require('../../../models/Credito/Credito');
 
 // pagar pix com checkout transparente
 router.post("/monthly/subscription/pix/:customerId", async (req, res) => {
