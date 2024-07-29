@@ -201,5 +201,25 @@ router.get('/ecommerce/user/:clienteId', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
-  
+  // Rota para atualizar o tema de um e-commerce
+router.post('/ecommerce/:ecommerceId/update-theme', async (req, res) => {
+  const { ecommerceId } = req.params;
+  const { theme } = req.body;
+
+  try {
+    const ecommerce = await Ecommerce.findById(ecommerceId);
+
+    if (!ecommerce) {
+      return res.status(404).send('E-commerce não encontrado');
+    }
+
+    ecommerce.theme = theme;
+    await ecommerce.save();
+
+    res.send(ecommerce);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 module.exports = router;
