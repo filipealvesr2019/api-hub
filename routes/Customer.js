@@ -11,7 +11,7 @@ const Customer = require("../models/Customer"); // Importe o modelo do Customer
 router.post("/signup", async (req, res) => {
   try {
     const {
-      custumerId,
+      customerId,
       name,
       cpfCnpj,
       mobilePhone,
@@ -34,7 +34,7 @@ router.post("/signup", async (req, res) => {
     }
 
     const newUser = new Customer({
-      custumerId,
+      customerId,
       name,
       cpfCnpj,
       mobilePhone,
@@ -100,11 +100,11 @@ router.post("/signup", async (req, res) => {
 
 
 // Rota para visualizar um cliente específico pelo ID
-router.get("/customer/:id", async (req, res) => {
-  const { id } = req.params;
+router.get("/customer/:customerId", async (req, res) => {
+  const { customerId } = req.params;
 
   try {
-    const customer = await Customer.findById(id);
+    const customer = await Customer.findById(customerId);
 
     if (!customer) {
       return res.status(404).json({ message: "Cliente não encontrado." });
@@ -116,4 +116,5 @@ router.get("/customer/:id", async (req, res) => {
     res.status(500).json({ message: "Erro interno do servidor ao buscar cliente." });
   }
 });
+
 module.exports = router;
