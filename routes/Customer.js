@@ -101,16 +101,14 @@ router.post("/signup", async (req, res) => {
 
 // Rota para visualizar um cliente específico pelo ID
 router.get("/customer/:customerId", async (req, res) => {
-  const { customerId } = req.params;
+  
 
   try {
-    const customer = await Customer.findById(customerId);
+    const existingUser = await Customer.findOne({
+      customerId: req.params.customerId,
+    });
 
-    if (!customer) {
-      return res.status(404).json({ message: "Cliente não encontrado." });
-    }
-
-    res.status(200).json(customer);
+    res.status(200).json(existingUser);
   } catch (error) {
     console.error("Erro ao buscar cliente:", error);
     res.status(500).json({ message: "Erro interno do servidor ao buscar cliente." });
