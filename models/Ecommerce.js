@@ -4,12 +4,15 @@ const EcommerceSchema = new mongoose.Schema({
   clienteId: mongoose.Schema.Types.ObjectId,
   theme: {
     header: {
-      backgroundColor: {type: String, default:"#2a2d34"},
+      backgroundColor: {type: String, default:"#0088CC"},
       color:  { type: String, default: "#ffffff" }, 
     },
     footer: {
-      backgroundColor: String,
-      color: String,
+      backgroundColor: {type: String, default:"#ffffff"},
+
+      color:  { type: String, default: "#222529" }, 
+
+     
     },
     main: {
       backgroundColor: String,
