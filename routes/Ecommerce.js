@@ -149,11 +149,12 @@ router.get('/themes', async (req, res) => {
 
 // Rota para adicionar um novo tema ao banco de dados
 router.post('/add-theme', async (req, res) => {
-    const { name, category, theme } = req.body;
+    const { name, category, theme, layout } = req.body;
   
     const newTheme = new Theme({
       name,
       category,
+      layout,
       theme,
     });
   
