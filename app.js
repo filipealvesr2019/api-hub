@@ -47,19 +47,9 @@ app.use('/api', Monthly);
 const uri = process.env.MONGODB_URI;
 
 
-app.get('/api/get-ip', (req, res) => {
-  // Captura o IP do cliente do cabeçalho X-Forwarded-For, se disponível
-  // Caso contrário, usa o IP do socket diretamente
-  const ip = req.headers['x-forwarded-for'] 
-               ? req.headers['x-forwarded-for'].split(',')[0]
-               : req.socket.remoteAddress;
-  res.json({ ip });
-})
 
 // Conexão com o banco de dados
-mongoose.connect(uri, {
- 
-}).then(() => {
+mongoose.connect(uri).then(() => {
   console.log('Conectado ao banco de dados');
 }).catch((error) => {
   console.error('Erro de conexão com o banco de dados:', error);
