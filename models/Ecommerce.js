@@ -7,8 +7,10 @@ const EcommerceSchema = new mongoose.Schema({
 
   theme: {
     header: {
+      Logo: {type: String, default:""},
       backgroundColor: {type: String, default:"#0088CC"},
       color:  { type: String, default: "#ffffff" }, 
+      icons:  [{ type: String, default: ""}]
       
     },
     footer: {
