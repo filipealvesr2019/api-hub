@@ -204,44 +204,51 @@ router.get('/ecommerce/user/:clienteId', async (req, res) => {
   }
 });
   // Rota para atualizar o tema de um e-commerce
-router.post('/ecommerce/:ecommerceId/update-theme', async (req, res) => {
-  const { ecommerceId } = req.params;
-  const { theme } = req.body;
+// router.post('/ecommerce/:ecommerceId/update-theme', async (req, res) => {
+//   const { ecommerceId } = req.params;
+//   const { theme } = req.body;
 
-  try {
-    const ecommerce = await Ecommerce.findById(ecommerceId);
+//   try {
+//     const ecommerce = await Ecommerce.findById(ecommerceId);
 
-    if (!ecommerce) {
-      return res.status(404).send('E-commerce não encontrado');
-    }
+//     if (!ecommerce) {
+//       return res.status(404).send('E-commerce não encontrado');
+//     }
 
-    ecommerce.theme = theme;
-    await ecommerce.save();
+//     ecommerce.theme = theme;
+//     await ecommerce.save();
 
-    res.send(ecommerce);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
+//     res.send(ecommerce);
+//   } catch (error) {
+//     res.status(500).send(error.message);
+//   }
+// });
 
 
 
 // Rota para atualizar o tema de um e-commerce
-router.put('/ecommerce/:clienteId/update-theme', async (req, res) => {
-  const { clienteId } = req.params;
+// Rota para atualizar o tema de um e-commerce
+// Rota para atualizar o tema de um e-commerce usando clienteId
+// Rota para atualizar o tema de um e-commerce usando _id
+router.put('/ecommerce/:id/update-theme', async (req, res) => {
+  const { id } = req.params;
   const { theme } = req.body;
 
-  console.log("Cliente ID recebido:", clienteId);
+  console.log("ID recebido:", id);
+  console.log("Tema recebido:", theme);
 
   try {
-    const ecommerce = await Ecommerce.findById(clienteId);
+    const ecommerce = await Ecommerce.findById(id);
 
     if (!ecommerce) {
+      console.error("E-commerce não encontrado com o ID:", id);
       return res.status(404).send('E-commerce não encontrado');
     }
 
     ecommerce.theme = theme;
+    console.log("Tema antes de salvar:", ecommerce.theme);
     await ecommerce.save();
+    console.log("Tema após salvar:", ecommerce.theme);
 
     res.send(ecommerce);
   } catch (error) {
