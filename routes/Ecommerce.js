@@ -227,12 +227,14 @@ router.post('/ecommerce/:ecommerceId/update-theme', async (req, res) => {
 
 
 // Rota para atualizar o tema de um e-commerce
-router.put('/ecommerce/:ecommerceId/update-theme', async (req, res) => {
-  const { ecommerceId } = req.params;
+router.put('/ecommerce/:clienteId/update-theme', async (req, res) => {
+  const { clienteId } = req.params;
   const { theme } = req.body;
 
+  console.log("Cliente ID recebido:", clienteId);
+
   try {
-    const ecommerce = await Ecommerce.findById(ecommerceId);
+    const ecommerce = await Ecommerce.findById(clienteId);
 
     if (!ecommerce) {
       return res.status(404).send('E-commerce não encontrado');
@@ -243,6 +245,7 @@ router.put('/ecommerce/:ecommerceId/update-theme', async (req, res) => {
 
     res.send(ecommerce);
   } catch (error) {
+    console.error("Erro ao atualizar o tema:", error.message);
     res.status(500).send(error.message);
   }
 });

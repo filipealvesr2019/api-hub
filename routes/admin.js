@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const postmark = require('postmark');
-const validator = require('validator');
-const Admin = require('../models/admin');
-const bcrypt = require('bcryptjs'); // Para gerar senhas temporárias
+const postmark = require("postmark");
+const validator = require("validator");
+const Admin = require("../models/admin");
+const bcrypt = require("bcryptjs"); // Para gerar senhas temporárias
 const jwt = require("jsonwebtoken");
 const {
   getUser,
@@ -13,62 +13,64 @@ const {
   getAllUsers,
   loginUser,
   registerAdmin,
-  loginCustomer
+  loginCustomer,
 } = require("../controllers/admin");
 
 const { Userlogout } = require("../controllers/admin");
-const { isAuthenticated, isAdmin } = require("../middleware/middlewares.authMiddleware");
-const AuthController = require('../controllers/admin');
+const {
+  isAuthenticated,
+  isAdmin,
+} = require("../middleware/middlewares.authMiddleware");
+const AuthController = require("../controllers/admin");
+const Ecommerce = require("../models/Ecommerce");
 
-router.get("/users",isAuthenticated, getAllUsers); // Rota para buscar todos os usuários
+router.get("/users", isAuthenticated, getAllUsers); // Rota para buscar todos os usuários
 router.post("/login", loginUser); // Use directly from AuthController
 
-router.post("/admin",  registerAdmin); // Use directly from AuthController
+router.post("/admin", registerAdmin); // Use directly from AuthController
 
 router.post("/loginCustumer", loginCustomer); // Use directly from AuthController
 
-router.post("/user",  registerAdmin); // Use directly from AuthController
+router.post("/user", registerAdmin); // Use directly from AuthController
 router.get("/user/:id", getUser); // Rota para buscar usuário por ID
 router.put("/user/:id", updateUser); // Rota para atualizar usuário por ID
 router.delete("/user/:id", deleteUser); // Rota para excluir usuário por ID
 router.get("/user", getUserByUsername); // Rota para buscar usuário por nome de usuário
-router.route("/logout").post( Userlogout);
-router.get('/rota-protegida', isAuthenticated, (req, res) => {
-  res.json({ message: 'Você está autenticado!' });
+router.route("/logout").post(Userlogout);
+router.get("/rota-protegida", isAuthenticated, (req, res) => {
+  res.json({ message: "Você está autenticado!" });
 });
 
 // Use o middleware isAdmin nas rotas que deseja proteger
-router.get('/admin-only-route',isAuthenticated, isAdmin, (req, res) => {
-  res.json({ message: 'Esta rota só pode ser acessada por administradores.' });
+router.get("/admin-only-route", isAuthenticated, isAdmin, (req, res) => {
+  res.json({ message: "Esta rota só pode ser acessada por administradores." });
 });
 
-router.post('/admin-only-route', isAdmin, (req, res) => {
-  res.json({ message: 'Esta rota só pode ser acessada por administradores.' });
+router.post("/admin-only-route", isAdmin, (req, res) => {
+  res.json({ message: "Esta rota só pode ser acessada por administradores." });
 });
 
 // Outras rotas que não precisam de proteção
-router.get('/public-route', (req, res) => {
-  res.json({ message: 'Esta rota é pública e pode ser acessada por qualquer usuário.' });
+router.get("/public-route", (req, res) => {
+  res.json({
+    message: "Esta rota é pública e pode ser acessada por qualquer usuário.",
+  });
 });
 
-router.post('/public-route', (req, res) => {
-  res.json({ message: 'Esta rota é pública e pode ser acessada por qualquer usuário.' });
+router.post("/public-route", (req, res) => {
+  res.json({
+    message: "Esta rota é pública e pode ser acessada por qualquer usuário.",
+  });
 });
 
 router.post("/forgot-password", AuthController.sendPasswordResetEmail);
 // Rota para redefinir a senha
-router.post('/reset-password/:token',  AuthController.resetPassword);
-
-
-
-
-
-
+router.post("/reset-password/:token", AuthController.resetPassword);
 
 // Função para enviar e-mail usando Postmark
 const sendEmail = async (email, token) => {
   const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
-   
+
   try {
     const registrationLink = `http://localhost:3004/register/${token}`;
 
@@ -125,19 +127,65 @@ const sendEmail = async (email, token) => {
 };
 
 // Rota para solicitar registro
-router.post("/register/request", async (req, res) => {
-  const { email } = req.body;
+router.post("/register/:token", async (req, res) => {
+  const { token } = req.params;
+  const { email, password, role } = req.body;
 
   try {
-    // Gerar token JWT com duração de 10 minutos
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "10m" });
+    // Verificar se o token é válido
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Enviar e-mail com o link de registro contendo o token
-    await sendEmail(email, token);
+    // Verificar se o e-mail no token corresponde ao fornecido no corpo da solicitação
+    if (decodedToken.email !== email) {
+      return res.status(400).json({ success: false, error: "Token inválido para este e-mail." });
+    }
 
-    res.status(200).json({ success: true, message: "Link de registro enviado com sucesso." });
+    // Verificação da composição da senha
+    const passwordRegex = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        error: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
+      });
+    }
+
+    // Criar usuário com e-mail e senha fornecidos
+    const user = await Admin.create({
+      email,
+      password,
+      role,
+    });
+
+    // Ajuste do modelo Ecommerce
+    const ecommerce = new Ecommerce({
+      clienteId: user._id,
+      layout: 'default', // Ajuste conforme necessário
+      theme: {
+        header: {
+          Logo: 'logo.png', // Ajuste conforme necessário
+          backgroundColor: '#ffffff',
+          color: '#000000',
+          icons: 'default-icons',
+        },
+        footer: {
+          backgroundColor: '#ffffff',
+          color: '#000000',
+        },
+        main: {
+          backgroundColor: '#ffffff',
+          color: '#000000',
+        },
+      },
+    });
+
+    await ecommerce.save();
+    res.status(201).json({
+      user,
+      success: true,
+      message: "Usuário registrado com sucesso.",
+    });
   } catch (error) {
-    console.error("Erro ao solicitar registro", error);
+    console.error("Erro ao registrar usuário", error);
     res.status(500).json({ success: false, error: "Erro interno do servidor." });
   }
 });
@@ -148,24 +196,26 @@ router.post("/register/:token", async (req, res) => {
   const { email, password, role } = req.body;
 
   try {
-
     // Verificar se o token é válido
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
     // Verificar se o e-mail no token corresponde ao fornecido no corpo da solicitação
     if (decodedToken.email !== email) {
-      return res.status(400).json({ success: false, error: "Token inválido para este e-mail." });
+      return res
+        .status(400)
+        .json({ success: false, error: "Token inválido para este e-mail." });
     }
 
     // Aqui você pode adicionar mais validações, se necessário
-// Verificação da composição da senha
-const passwordRegex = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/;
-if (!passwordRegex.test(password)) {
-  return res.status(400).json({
-    success: false,
-    error: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
-  });
-}
+    // Verificação da composição da senha
+    const passwordRegex = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
+      });
+    }
     // Criar usuário com e-mail e senha fornecidos
     const user = await Admin.create({
       email,
@@ -173,16 +223,44 @@ if (!passwordRegex.test(password)) {
       role,
     });
 
-    res.status(201).json({ user, success: true, message: "Usuário registrado com sucesso." });
+    const Ecommerce = new Ecommerce({
+      layout: layout,
+      clienteId: _id,
+
+      theme: {
+        header: {
+          Logo,
+          backgroundColor,
+          color,
+          icons,
+        },
+        footer: {
+          backgroundColor,
+
+          color,
+        },
+        main: {
+          backgroundColor: String,
+          color: String,
+        },
+      },
+    });
+
+    await Ecommerce.save();
+    res
+      .status(201)
+      .json({
+        user,
+        success: true,
+        message: "Usuário registrado com sucesso.",
+      });
   } catch (error) {
     console.error("Erro ao registrar usuário", error);
-    res.status(500).json({ success: false, error: "Erro interno do servidor." });
+    res
+      .status(500)
+      .json({ success: false, error: "Erro interno do servidor." });
   }
 });
-
-
-
-
 
 // Função para enviar email de recuperação de senha
 const sendPasswordResetEmail = async (req, res) => {
@@ -263,7 +341,9 @@ const resetPassword = async (req, res) => {
   const { token, newPassword, confirmPassword } = req.body;
 
   if (!token || !newPassword || !confirmPassword) {
-    return res.status(400).json({ message: "Todos os campos são obrigatórios." });
+    return res
+      .status(400)
+      .json({ message: "Todos os campos são obrigatórios." });
   }
 
   try {
@@ -276,7 +356,12 @@ const resetPassword = async (req, res) => {
       decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
-        return res.status(400).json({ message: "O token expirou. Solicite um novo link de redefinição de senha." });
+        return res
+          .status(400)
+          .json({
+            message:
+              "O token expirou. Solicite um novo link de redefinição de senha.",
+          });
       }
       console.error("Erro ao verificar token:", error);
       return res.status(400).json({ message: "Token inválido." });
@@ -287,16 +372,17 @@ const resetPassword = async (req, res) => {
 
     await Admin.updateOne({ _id: userId }, { password: hashedPassword });
 
+
     res.status(200).json({ message: "Senha redefinida com sucesso." });
   } catch (error) {
     console.error("Erro ao redefinir senha:", error);
-    res.status(500).json({ message: "Erro interno do servidor ao redefinir senha." });
+    res
+      .status(500)
+      .json({ message: "Erro interno do servidor ao redefinir senha." });
   }
 };
 
-
-
 router.post("/forgot-password", sendPasswordResetEmail);
 // Rota para redefinir a senha
-router.post('/reset-password/:token',  resetPassword);
+router.post("/reset-password/:token", resetPassword);
 module.exports = router;
