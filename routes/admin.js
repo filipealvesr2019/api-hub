@@ -126,6 +126,29 @@ const sendEmail = async (email, token) => {
   }
 };
 
+
+
+
+
+
+// Rota para solicitar registro
+router.post("/register/request", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Gerar token JWT com duração de 10 minutos
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "10m" });
+
+    // Enviar e-mail com o link de registro contendo o token
+    await sendEmail(email, token);
+
+    res.status(200).json({ success: true, message: "Link de registro enviado com sucesso." });
+  } catch (error) {
+    console.error("Erro ao solicitar registro", error);
+    res.status(500).json({ success: false, error: "Erro interno do servidor." });
+  }
+});
+
 // Rota para solicitar registro
 router.post("/register/:token", async (req, res) => {
   const { token } = req.params;
@@ -162,14 +185,14 @@ router.post("/register/:token", async (req, res) => {
       layout: 'layout1', // Ajuste conforme necessário
       theme: {
         header: {
-          Logo: 'logo.png', // Ajuste conforme necessário
-          backgroundColor: '#ffffff',
-          color: '#000000',
-          icons: 'default-icons',
+          Logo: 'https://i.imgur.com/bMWS6ec.png', // Ajuste conforme necessário
+          backgroundColor: '#0088CC',
+          color: '#ffffff',
+          icons: ['https://i.imgur.com/n05IYkV.png', 'https://i.imgur.com/1XrvJJL.png', "https://i.imgur.com/ItjKDhc.png"]
         },
         footer: {
           backgroundColor: '#ffffff',
-          color: '#000000',
+          color: '#222529',
         },
         main: {
           backgroundColor: '#ffffff',
