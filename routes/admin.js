@@ -159,7 +159,7 @@ router.post("/register/:token", async (req, res) => {
     // Ajuste do modelo Ecommerce
     const ecommerce = new Ecommerce({
       clienteId: user._id,
-      layout: 'default', // Ajuste conforme necessário
+      layout: 'layout1', // Ajuste conforme necessário
       theme: {
         header: {
           Logo: 'logo.png', // Ajuste conforme necessário
