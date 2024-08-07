@@ -16,6 +16,8 @@ const Ecommerce = require('./routes/Ecommerce');
 const Customer = require('./routes/Customer');
 const Monthly = require('./routes/subscriptions/basic/monthly');
 
+const File = require('./models/File'); // Assumindo que o modelo está em models/file.js
+const upload = require('./upload'); // Assu
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -39,11 +41,60 @@ app.use((err, req, res, next) => {
   res.status(401).send('Unauthenticated!');
 });
 
+
+app.post('/upload', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send('Nenhum arquivo enviado.');
+    }
+
+    // Cria um novo documento com o arquivo
+    const newFile = new File({
+      filename: req.file.originalname,
+      data: req.file.buffer,
+      contentType: req.file.mimetype
+    });
+
+    // Salva o arquivo no banco de dados
+    await newFile.save();
+    res.status(200).send('Arquivo enviado e salvo com sucesso.');
+  } catch (err) {
+    res.status(500).send('Erro ao salvar o arquivo.');
+  }
+});
+
+
+// Rota para baixar o arquivo
+app.get('/download/:id', async (req, res) => {
+  try {
+    const file = await File.findById(req.params.id);
+    
+    if (!file) {
+      return res.status(404).send('Arquivo não encontrado');
+    }
+
+    // Definir o tipo de conteúdo e o nome do arquivo
+    res.setHeader('Content-disposition', 'attachment; filename=' + file.filename);
+    res.setHeader('Content-type', file.contentType);
+
+    // Enviar o arquivo
+    res.send(file.data);
+  } catch (error) {
+    res.status(500).send('Erro ao baixar o arquivo');
+  }
+});
+
+
+
+
+
+
 app.use('/api', admin);
 app.use('/api', Ecommerce);
 app.use('/api', Customer);
 app.use('/api', Monthly);
 // Acesso à variável de ambiente MONGODB_URI do arquivo .env
+
 const uri = process.env.MONGODB_URI;
 
 
