@@ -72,7 +72,7 @@ const sendEmail = async (email, token) => {
   const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
   try {
-    const registrationLink = `http://localhost:3004/register/${token}`;
+    const registrationLink = `http://localhost:5003/register/${token}`;
 
     await client.sendEmail({
       From: "ceo@mediewal.com.br",
@@ -317,7 +317,7 @@ const sendPasswordResetEmail = async (req, res) => {
 
     const client = new postmark.ServerClient(postmarkApiKey);
 
-    const resetLink = `http://localhost:3004/reset-password/${resetToken}`;
+    const resetLink = `http://localhost:5003/reset-password/${resetToken}`;
 
     await client.sendEmail({
       From: "ceo@mediewal.com.br",

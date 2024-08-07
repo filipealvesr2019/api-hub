@@ -47,9 +47,12 @@ app.use('/api', Monthly);
 const uri = process.env.MONGODB_URI;
 
 
-
+const options = {
+  serverSelectionTimeoutMS: 30000, // 30 segundos
+  socketTimeoutMS: 30000 // 30 segundos
+};
 // Conexão com o banco de dados
-mongoose.connect(uri).then(() => {
+mongoose.connect(uri,  options).then(() => {
   console.log('Conectado ao banco de dados');
 }).catch((error) => {
   console.error('Erro de conexão com o banco de dados:', error);
