@@ -5,17 +5,19 @@ const validator = require("validator");
 const superAdmin = require("../models/superAdmin");
 const bcrypt = require("bcryptjs"); // Para gerar senhas temporárias
 const jwt = require("jsonwebtoken");
+
 const {
-  getUser,
+    loginUser,
+    registerUser,
+    getUser,
   updateUser,
   deleteUser,
   getUserByUsername,
   getAllUsers,
-  loginUser,
   registerAdmin,
-  loginCustomer,
-} = require("../controllers/admin");
 
+  loginCustomer,
+  } = require("../controllers/superAdmin");
 const { Userlogout } = require("../controllers/admin");
 const {
   isAuthenticated,
@@ -25,7 +27,7 @@ const AuthController = require("../controllers/admin");
 const Ecommerce = require("../models/Ecommerce");
 
 router.get("/users", isAuthenticated, getAllUsers); // Rota para buscar todos os usuários
-router.post("/login", loginUser); // Use directly from AuthController
+router.post("/loginSuperAdmin", loginUser); // Use directly from AuthController
 
 router.post("/admin", registerAdmin); // Use directly from AuthController
 
@@ -386,4 +388,8 @@ const resetPassword = async (req, res) => {
 router.post("/forgot-password", sendPasswordResetEmail);
 // Rota para redefinir a senha
 router.post("/reset-password/:token", resetPassword);
+
+
+router.post("/superAdmin", registerUser); // Use directly from AuthController
+
 module.exports = router;

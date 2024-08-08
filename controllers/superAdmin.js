@@ -6,6 +6,52 @@ const sendToken = require("../utils/jwtToken");
 const postmark = require("postmark");
 const bcrypt = require("bcrypt");
 
+
+
+// cadastro de usuarios => /api/v1/register
+const registerUser = async (req, res, next) => {
+    const { email, password, role } = req.body;
+  
+    if (password.length < 10) {
+      return res.status(400).json({
+        success: false,
+        error: "A senha deve ter pelo menos 10 caracteres.",
+      });
+    }
+  
+   // Verificação da composição da senha
+   const passwordRegex = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/;
+   if (!passwordRegex.test(password)) {
+     return res.status(400).json({
+       success: false,
+       error: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
+     });
+   }
+    if (!email || !validator.isEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        error: "Digite um endereço de email válido.",
+      });
+    }
+  
+    try {
+      const user = await superAdmin.create({
+        email,
+        password,
+        role,
+      });
+  
+      sendToken(user, 200, res);
+    } catch (error) {
+      console.error("Erro, ao cadastrar usuario", error);
+      res.status(500).json({
+        success: false,
+        error: "Erro interno do servidor.",
+      });
+    }
+  };
+  
+
 // cadastro de usuarios => /api/v1/register
 const registerAdmin = async (req, res, next) => {
   const { email, password, role } = req.body;
@@ -201,7 +247,7 @@ const loginUser = async (req, res, next) => {
   }
 
   // Agora, dependendo do papel (role) do usuário, você pode realizar ações específicas
-  if (user.role === "administrador") {
+  if (user.role === "superAdmin") {
     // Lógica para administrador
     // Adicione aqui as ações específicas para o administrador
   }
@@ -455,4 +501,5 @@ module.exports = {
   sendPasswordResetEmail,
   resetPassword,
   loginCustomer,
+  registerUser
 };
