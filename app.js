@@ -11,10 +11,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const superAdmin = require('./routes/superAdmin');
+
 const admin = require('./routes/admin');
+
+
 const Ecommerce = require('./routes/Ecommerce');
 const Customer = require('./routes/Customer');
 const Monthly = require('./routes/subscriptions/basic/monthly');
+
+
 
 const File = require('./models/File'); // Assumindo que o modelo está em models/file.js
 const upload = require('./upload'); // Assu
@@ -88,7 +94,7 @@ app.get('/download/:id', async (req, res) => {
 
 
 
-
+app.use('/api', superAdmin);
 app.use('/api', admin);
 app.use('/api', Ecommerce);
 app.use('/api', Customer);
