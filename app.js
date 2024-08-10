@@ -8,6 +8,7 @@ const port = process.env.PORT || 3003;
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+const passport = require('passport');
 
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
@@ -19,6 +20,7 @@ const admin = require('./routes/admin');
 const Ecommerce = require('./routes/Ecommerce');
 const Customer = require('./routes/Customer');
 const Monthly = require('./routes/subscriptions/basic/monthly');
+const User = require('./routes/User');
 
 
 
@@ -28,7 +30,11 @@ const upload = require('./upload'); // Assu
 app.use(bodyParser.json());
 app.use(cookieParser());
 // Configurações e middlewares
-app.use(cors({ origin: "*"}));
+// app.use(cors({ origin: "*"}));
+app.use(cors({
+  origin: 'http://localhost:5003',
+  credentials: true
+}));
 // Use the strict middleware that raises an error when unauthenticated
 app.get(
   '/protected-endpoint',
@@ -100,7 +106,7 @@ app.use('/api', Ecommerce);
 app.use('/api', Customer);
 app.use('/api', Monthly);
 // Acesso à variável de ambiente MONGODB_URI do arquivo .env
-
+app.use('/api', User);
 const uri = process.env.MONGODB_URI;
 
 
