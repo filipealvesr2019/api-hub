@@ -489,6 +489,28 @@ const resetPassword = async (req, res) => {
 };
 
 
+// Novo método para login com Google
+const googleLogin = async (req, res) => {
+  const { googleUser } = req;
+
+  // Verifique se o usuário já existe no banco de dados
+  let user = await User.findOne({ email: googleUser.email });
+
+  if (!user) {
+    // Se o usuário não existir, você pode criar um novo
+    user = new Admin({
+      email: googleUser.email,
+      name: googleUser.name,
+      role: 'user', // Defina um papel padrão ou crie uma lógica para determinar o papel
+    });
+
+    await user.save();
+  }
+
+  // Envie o token para o usuário
+  sendToken(user, 200, res);
+};
+
 module.exports = {
   loginUser,
   Userlogout,
@@ -502,5 +524,6 @@ module.exports = {
   sendPasswordResetEmail,
   resetPassword,
   loginCustomer,
+  googleLogin,
   registerUser
 };

@@ -4,9 +4,12 @@ const postmark = require("postmark");
 
 const bcrypt = require("bcryptjs"); // Para gerar senhas temporárias
 const jwt = require("jsonwebtoken");
+const { verifyGoogleToken } = require('../middleware/verifyGoogleToken'); // Importe o middleware para verificar o token do Google
+
 const {
   loginUser,
   registerUser,
+  googleLogin
 
 } = require("../controllers/User");
 const User = require('../models/User');
@@ -363,6 +366,7 @@ router.post("/superAdmin", registerUser); // Use directly from AuthController
 
 
 
+router.post('/google', verifyGoogleToken, googleLogin); // Novo endpoint para login com Google
 
 
 module.exports = router;
