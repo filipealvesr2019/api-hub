@@ -32,7 +32,7 @@ app.use(cookieParser());
 // Configurações e middlewares
 // app.use(cors({ origin: "*"}));
 app.use(cors({
-  origin: 'http://localhost:5003',
+  origin: ['http://localhost:5003', 'http://localhost:5004'],
   credentials: true
 }));
 // Use the strict middleware that raises an error when unauthenticated
