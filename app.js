@@ -21,11 +21,15 @@ const Ecommerce = require('./routes/Ecommerce');
 const Customer = require('./routes/Customer');
 const Monthly = require('./routes/subscriptions/basic/monthly');
 const User = require('./routes/User');
+const Product = require('./routes/Product');
 
 
 
 const File = require('./models/File'); // Assumindo que o modelo está em models/file.js
 const upload = require('./upload'); // Assu
+const question = require('./routes/question/question'); // Assu
+const Bot = require('./routes/Bot/Bot'); // Importe a rota de FAQ
+
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -107,6 +111,31 @@ app.use('/api', Customer);
 app.use('/api', Monthly);
 // Acesso à variável de ambiente MONGODB_URI do arquivo .env
 app.use('/api', User);
+app.use('/api', Product);
+app.use('/api', question);
+app.use('/api', Bot);
+
+
+// Definindo um esquema e modelo para suas perguntas e respostas
+const perguntaSchema = new mongoose.Schema({
+  pergunta: String,
+  resposta: String,
+});
+
+const Pergunta = mongoose.model('Pergunta', perguntaSchema);
+
+// Rota para buscar respostas
+app.post('/responder', async (req, res) => {
+  const { pergunta } = req.body;
+  const resposta = await Pergunta.findOne({ pergunta: new RegExp(pergunta, 'i') });
+  
+  if (resposta) {
+    res.json({ resposta: resposta.resposta });
+  } else {
+    res.json({ resposta: "Desculpe, não consegui entender sua pergunta." });
+  }
+});
+
 const uri = process.env.MONGODB_URI;
 
 

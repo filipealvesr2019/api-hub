@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.16",
+    "@huggingface/inference": "^2.8.1",
+    "@xenova/transformers": "^2.17.2",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
@@ -10,11 +12,14 @@
     "google-auth-library": "^9.13.0",
     "gridfs-stream": "^1.1.1",
     "jsonwebtoken": "^9.0.2",
+    "llamaai": "^1.0.4",
     "mongodb": "^6.8.0",
     "mongoose": "^8.5.2",
     "multer": "^1.4.5-lts.1",
     "passport": "^0.7.0",
     "postmark": "^4.0.4",
+    "python": "^0.0.4",
+    "transformers": "^1.8.3",
     "validator": "^13.12.0"
   },
   "devDependencies": {
