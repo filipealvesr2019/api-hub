@@ -65,5 +65,43 @@ router.delete("/delete/bot/:id", async (req, res) => {
   });
 
 
-  
+  // Rota para cadastrar múltiplos bots
+router.post('/add/bots', async (req, res) => {
+    const { storeID, steps } = req.body;
+
+    try {
+        // Lista para armazenar os bots criados
+        const createdBots = [];
+
+        // Vamos criar os bots na ordem dos passos
+        for (let i = 0; i < steps.length; i++) {
+            const { question, answer, currentStep } = steps[i];
+
+            const newBot = new Bot({
+                storeID,
+                question,
+                answer,
+                currentStep,
+                nextStep: i < steps.length - 1 ? null : undefined, // Se não for o último, deixa o próximo em branco
+            });
+
+            // Salva o bot
+            const savedBot = await newBot.save();
+            createdBots.push(savedBot);
+
+            // Atualiza o próximo passo do bot anterior, se houver
+            if (i > 0) {
+                const previousBot = createdBots[i - 1];
+                previousBot.nextStep = savedBot._id; // Atualiza o nextStep do bot anterior com o ID do atual
+                await previousBot.save();
+            }
+        }
+
+        res.status(201).json({ message: 'Bots cadastrados com sucesso!', createdBots });
+    } catch (error) {
+        console.error("Erro ao cadastrar bots:", error);
+        res.status(500).json({ message: 'Erro ao cadastrar bots.', error });
+    }
+});
+
 module.exports = router;

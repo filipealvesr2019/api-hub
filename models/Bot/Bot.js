@@ -8,6 +8,13 @@ const botSchema = new mongoose.Schema({
   },
   question: { type: String, required: true },
   answer: { type: String, required: true },
+  currentStep: { type: String, required: true }, // Define a etapa atual do diálogo
+  nextStep: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Bot" // Faz referência ao próximo passo da conversa
+  }
+
+
 });
 
 module.exports = mongoose.model("Bot", botSchema);
